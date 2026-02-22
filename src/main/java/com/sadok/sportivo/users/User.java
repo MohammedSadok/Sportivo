@@ -1,15 +1,14 @@
 package com.sadok.sportivo.users;
 
-import java.time.Instant;
 import java.util.UUID;
+
+import com.sadok.sportivo.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +23,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User extends BaseEntity {
 
   @Id
   @Column(nullable = false, updatable = false)
@@ -45,22 +44,4 @@ public class User {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private UserRole role;
-
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private Instant createdAt;
-
-  @Column(name = "updated_at", nullable = false)
-  private Instant updatedAt;
-
-  @PrePersist
-  void onCreate() {
-    Instant now = Instant.now();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @PreUpdate
-  void onUpdate() {
-    this.updatedAt = Instant.now();
-  }
 }

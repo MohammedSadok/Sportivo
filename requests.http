@@ -1,0 +1,100 @@
+### ==========================================
+### Variables
+### ==========================================
+
+@baseUrl = http://localhost:8080/api/v1
+@keycloakUrl = http://localhost:8180
+@realm = sportivo
+@clientId = sportivo-client-web
+
+### ==========================================
+### 1. Login — get access token
+### ==========================================
+# @name login
+POST {{keycloakUrl}}/realms/{{realm}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id={{clientId}}&username=admin@gmail.com&password=admin
+
+### — capture token from the response above —
+@token = {{login.response.body.access_token}}
+
+### ==========================================
+### 2. Create User (admin only)
+### ==========================================
+POST {{baseUrl}}/users
+Content-Type: application/json
+Accept-Language: fr
+Authorization: Bearer {{token}}
+
+{
+  "username": "john_do",
+  "email": "john.do@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "USER"
+}
+
+### ==========================================
+### 3. Get All Users (admin only)
+### ==========================================
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+### ==========================================
+### 4. Get User by ID (admin only)
+### ==========================================
+### Replace the UUID below with a real user id
+@userId = 00000000-0000-0000-0000-000000000000
+
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### ==========================================
+### 5. Update User by ID (admin only)
+### ==========================================
+PUT {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firstName": "Johnny",
+  "lastName": "Doe",
+  "email": "johnny.doe@example.com"
+}
+
+### ==========================================
+### 6. Update User Credentials / Reset Password (admin only)
+### ==========================================
+PATCH {{baseUrl}}/users/{{userId}}/credentials
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "newPassword": "NewSecurePassword123!"
+}
+
+### ==========================================
+### 7. Delete User (admin only)
+### ==========================================
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### ==========================================
+### 8. Get My Profile (any authenticated user)
+### ==========================================
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+### ==========================================
+### 9. Update My Profile (any authenticated user)
+### ==========================================
+PUT {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firstName": "Admin",
+  "lastName": "User",
+  "email": "admin@gmail.com"
+}
