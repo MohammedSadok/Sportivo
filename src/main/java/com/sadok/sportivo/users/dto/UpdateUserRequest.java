@@ -9,9 +9,9 @@ import jakarta.validation.constraints.Size;
  */
 public record UpdateUserRequest(
 
-    @Size(max = 100) String firstName,
+        @Size(max = 100, message = "{validation.firstName.size}") String firstName,
 
-    @Size(max = 100) String lastName,
+        @Size(max = 100, message = "{validation.lastName.size}") String lastName,
 
-    @Email @Size(max = 255) String email) {
+        @Email(message = "{validation.email.invalid}") @Size(max = 255, message = "{validation.email.size}") String email) {
 }

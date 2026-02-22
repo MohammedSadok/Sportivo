@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sadok.sportivo.common.MessageService;
 import com.sadok.sportivo.common.exception.ResourceAlreadyExistsException;
 import com.sadok.sportivo.common.exception.ResourceNotFoundException;
 import com.sadok.sportivo.keycloak.KeycloakAdminService;
@@ -28,6 +29,7 @@ public class UserService {
   private final KeycloakAdminService keycloakAdminService;
   private final UserMapper userMapper;
   private final MailService mailService;
+  private final MessageService messages;
 
   @Transactional
   public UserResponse createUser(CreateUserRequest request) {
@@ -131,15 +133,15 @@ public class UserService {
 
   private User findByIdOrThrow(UUID id) {
     return userRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found [id=" + id + "]"));
+        .orElseThrow(() -> new ResourceNotFoundException(messages.get("error.user.notFound", id)));
   }
 
   private void validateUniqueness(String username, String email) {
     if (userRepository.existsByUsername(username)) {
-      throw new ResourceAlreadyExistsException("Username already taken: " + username);
+      throw new ResourceAlreadyExistsException(messages.get("error.username.taken", username));
     }
     if (userRepository.existsByEmail(email)) {
-      throw new ResourceAlreadyExistsException("Email already registered: " + email);
+      throw new ResourceAlreadyExistsException(messages.get("error.email.registered", email));
     }
   }
 }

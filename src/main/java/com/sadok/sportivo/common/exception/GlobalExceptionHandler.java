@@ -10,10 +10,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.sadok.sportivo.common.MessageService;
+
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+  private final MessageService messages;
 
   @ExceptionHandler(ResourceNotFoundException.class)
   ProblemDetail handleNotFound(ResourceNotFoundException ex) {
@@ -37,7 +43,7 @@ public class GlobalExceptionHandler {
             f -> f.getField(),
             f -> f.getDefaultMessage() == null ? "invalid" : f.getDefaultMessage(),
             (a, b) -> a));
-    ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, "Validation failed", "validation-error");
+    ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, messages.get("error.validation.failed"), "validation-error");
     pd.setProperty("errors", errors);
     return pd;
   }

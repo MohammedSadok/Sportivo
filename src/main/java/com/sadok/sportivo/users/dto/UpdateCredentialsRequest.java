@@ -7,5 +7,5 @@ import jakarta.validation.constraints.Size;
  * Admin-only request to reset a user's password in Keycloak.
  */
 public record UpdateCredentialsRequest(
-        @NotBlank @Size(min = 8) String newPassword) {
+                @NotBlank(message = "{validation.password.notBlank}") @Size(min = 8, message = "{validation.password.size}") String newPassword) {
 }
