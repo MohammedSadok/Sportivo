@@ -1,18 +1,19 @@
 package com.sadok.sportivo;
 
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
 
+/**
+ * Base testcontainers configuration.
+ * <p>
+ * PostgreSQL is replaced by H2 (in-memory, PostgreSQL-compatibility mode) for
+ * fast test execution.
+ * Add container beans here only when a real external service is required in
+ * tests.
+ * For Keycloak integration tests see
+ * {@code KeycloakTestcontainersConfiguration}.
+ * </p>
+ */
 @TestConfiguration(proxyBeanMethods = false)
-class TestcontainersConfiguration {
-
-    @Bean
-    @ServiceConnection
-    PostgreSQLContainer postgresContainer() {
-        return new PostgreSQLContainer(DockerImageName.parse("postgres:latest"));
-    }
-
+public class TestcontainersConfiguration {
+    // no containers – H2 handles persistence in tests
 }
