@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:sportivo_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false # let Hibernate manage schema in tests via ddl-auto
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Use a dummy issuer — override per test with @WithMockUser or mock the JwtDecoder bean
+          issuer-uri: http://localhost/realms/test
+
+logging:
+  level:
+    root: WARN
+    org.springframework.security: WARN
+    org.hibernate.SQL: DEBUG
+
+# Disable mail/storage side effects in tests
+app:
+  mail:
+    host: localhost
+    port: 1025
+  storage:
+    endpoint: http://localhost:9000

@@ -1,0 +1,48 @@
+{
+  "realm": "sportivo",
+  "enabled": true,
+
+  "clients": [
+    {
+      "clientId": "sportivo-client-api",
+      "name": "Sportivo Backend API",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "dhovr7EeG4FKxzvuj7sVfg6oHqhZuW72",
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false
+    },
+    {
+      "clientId": "sportivo-client-web",
+      "name": "Sportivo Frontend",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"]
+    }
+  ],
+
+  "roles": {
+    "realm": [{ "name": "user" }, { "name": "admin" }]
+  },
+
+  "users": [
+    {
+      "username": "service-account-sportivo-client-api",
+      "enabled": true,
+      "serviceAccountClientId": "sportivo-client-api",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users",
+          "query-users",
+          "manage-roles",
+          "view-realm",
+          "manage-clients"
+        ]
+      }
+    }
+  ]
+}
