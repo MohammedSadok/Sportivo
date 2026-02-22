@@ -41,6 +41,7 @@ app:
     access-key: ${RUSTFS_ROOT_USER:admin}
     secret-key: ${RUSTFS_ROOT_PASSWORD:admin}
   keycloak:
+    server-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8180}
     realm: ${KEYCLOAK_REALM:sportivo}
-    client-id: ${KEYCLOAK_API_CLIENT_ID:}
-    client-secret: ${KEYCLOAK_API_CLIENT_SECRET:}
+    client-id: ${KEYCLOAK_API_CLIENT_ID:sportivo-client-api}
+    client-secret: ${KEYCLOAK_API_CLIENT_SECRET:dhovr7EeG4FKxzvuj7sVfg6oHqhZuW72}

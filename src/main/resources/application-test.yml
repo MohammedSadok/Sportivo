@@ -1,36 +1,41 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:sportivo_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    url: jdbc:h2:mem:sportivo_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH
     username: sa
     password:
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
   flyway:
-    enabled: false # let Hibernate manage schema in tests via ddl-auto
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    baseline-on-migrate: true
+    baseline-version: 0
   security:
     oauth2:
       resourceserver:
         jwt:
-          # Use a dummy issuer — override per test with @WithMockUser or mock the JwtDecoder bean
-          issuer-uri: http://localhost/realms/test
+          # Dummy URI — JWKS is fetched lazily (only on token validation), never at startup.
+          # Integration tests override this via @DynamicPropertySource with the Keycloak container URL.
+          jwk-set-uri: http://localhost:9999/realms/test/protocol/openid-connect/certs
 
 logging:
   level:
     root: WARN
-    org.springframework.security: WARN
+    org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
 
-# Disable mail/storage side effects in tests
+# Dummy Keycloak admin properties — integration tests override via @DynamicPropertySource.
 app:
-  mail:
-    host: localhost
-    port: 1025
-  storage:
-    endpoint: http://localhost:9000
+  keycloak:
+    server-url: http://localhost:9999
+    realm: test
+    client-id: test-client
+    client-secret: test-secret
