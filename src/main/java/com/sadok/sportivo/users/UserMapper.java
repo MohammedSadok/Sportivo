@@ -25,5 +25,7 @@ public interface UserMapper {
   @Mapping(target = "role", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "createdBy", ignore = true)
+  @Mapping(target = "updatedBy", ignore = true)
   void updateUserFromRequest(UpdateUserRequest request, @MappingTarget User user);
 }

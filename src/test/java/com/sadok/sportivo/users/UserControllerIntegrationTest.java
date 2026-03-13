@@ -179,13 +179,13 @@ class UserControllerIntegrationTest {
     String jwt = userToken();
     UUID keycloakId = subjectFromToken(jwt);
 
-    userRepository.save(User.builder()
-        .id(keycloakId)
-        .username("test-user")
-        .email("test-user@sportivo.test")
-        .firstName("Test").lastName("User")
-        .role(UserRole.USER)
-        .build());
+    userRepository.save(new User(
+        keycloakId,
+        "test-user",
+        "test-user@sportivo.test",
+        "Test",
+        "User",
+        UserRole.USER));
 
     mockMvc.perform(get("/api/v1/users/me")
         .header("Authorization", bearer(jwt)))
@@ -251,13 +251,20 @@ class UserControllerIntegrationTest {
     String jwt = userToken();
     UUID keycloakId = subjectFromToken(jwt);
 
-    userRepository.save(User.builder()
-        .id(keycloakId)
-        .username("test-user")
-        .email("test-user@sportivo.test")
-        .firstName("Test").lastName("User")
-        .role(UserRole.USER)
-        .build());
+    User saved = userRepository.save(new User(
+        keycloakId,
+        "test-user",
+        "test-user@sportivo.test",
+        "Test",
+        "User",
+        UserRole.USER));
+    userRepository.save(saved);
+
+    mockMvc.perform(put("/api/v1/users/me")
+        .header("Authorization", bearer(jwt))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(
+            new UpdateUserRequest("UpdatedFirst", "UpdatedLast", null))));
 
     mockMvc.perform(put("/api/v1/users/me")
         .header("Authorization", bearer(jwt))

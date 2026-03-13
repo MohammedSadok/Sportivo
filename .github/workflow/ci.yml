@@ -1,0 +1,23 @@
+name: Spring Boot CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: check gradle wrapper
+        run: |
+          if [ ! -f "./gradlew" ]; then
+            echo "Gradle wrapper not found!"
+            exit 1
+          fi
+      - name: Show the project structure
+        run: tree -la

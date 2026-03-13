@@ -37,14 +37,13 @@ public class UserService {
     UserCreationResult result = keycloakAdminService.createUser(request);
     UUID keycloakId = result.keycloakId();
     try {
-      User user = User.builder()
-          .id(keycloakId)
-          .username(request.username())
-          .email(request.email())
-          .firstName(request.firstName())
-          .lastName(request.lastName())
-          .role(request.role())
-          .build();
+      User user = new User(
+          keycloakId,
+          request.username(),
+          request.email(),
+          request.firstName(),
+          request.lastName(), 
+          request.role());
 
       User saved = userRepository.save(user);
       log.info("User created locally [id={}, username={}]", saved.getId(), saved.getUsername());

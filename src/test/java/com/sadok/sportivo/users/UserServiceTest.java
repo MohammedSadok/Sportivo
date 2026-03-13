@@ -54,16 +54,8 @@ class UserServiceTest {
 
   @BeforeEach
   void setUp() {
-    sampleUser = User.builder()
-        .id(USER_ID)
-        .username("alice")
-        .email("alice@example.com")
-        .firstName("Alice")
-        .lastName("Smith")
-        .role(UserRole.USER)
-        .createdAt(Instant.now())
-        .updatedAt(Instant.now())
-        .build();
+    sampleUser = new User(
+        USER_ID, "alice", "alice@example.com", "Alice", "Smith", UserRole.USER);
 
     sampleResponse = new UserResponse(
         USER_ID, "alice", "alice@example.com", "Alice", "Smith",
