@@ -12,8 +12,8 @@ concurrency:
 
 env:
   JAVA_VERSION: "21"
-  registry: ghcr.io
-  image_name: ${{ github.repository }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   validate:
