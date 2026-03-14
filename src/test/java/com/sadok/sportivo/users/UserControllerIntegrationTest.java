@@ -121,7 +121,13 @@ class UserControllerIntegrationTest {
         .password(password)
         .grantType("password")
         .build()) {
-      return kClient.tokenManager().getAccessTokenString();
+      String token = kClient.tokenManager().getAccessTokenString();
+      if (token == null || token.trim().isEmpty()) {
+        throw new RuntimeException("Token is null or empty for user: " + username);
+      }
+      return token;
+    } catch (Exception ex) {
+      throw new RuntimeException("Failed to get token for user: " + username + " - " + ex.getMessage(), ex);
     }
   }
 
@@ -304,7 +310,13 @@ class UserControllerIntegrationTest {
   @SuppressWarnings("unchecked")
   private Jwt decodeJwtWithoutVerification(String token) {
     try {
+      if (token == null || token.trim().isEmpty()) {
+        throw new RuntimeException("Token is null or empty");
+      }
       String[] parts = token.split("\\.");
+      if (parts.length != 3) {
+        throw new RuntimeException("Token has " + parts.length + " parts, expected 3. Token: " + token);
+      }
       String payloadJson = new String(java.util.Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
       Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<Map<String, Object>>() {
       });
@@ -321,7 +333,7 @@ class UserControllerIntegrationTest {
           .claims(c -> c.putAll(claims))
           .build();
     } catch (Exception ex) {
-      throw new IllegalArgumentException("Unable to decode JWT in integration test", ex);
+      throw new IllegalArgumentException("Unable to decode JWT in integration test: " + ex.getMessage(), ex);
     }
   }
 }
