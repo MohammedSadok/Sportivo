@@ -30,6 +30,42 @@
 
   "users": [
     {
+      "username": "test-admin",
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "Admin",
+      "email": "test-admin@sportivo.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "AdminPass1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin"],
+      "clientRoles": {
+        "account": ["manage-account"]
+      }
+    },
+    {
+      "username": "test-user",
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "test-user@sportivo.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "UserPass1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"],
+      "clientRoles": {
+        "account": ["manage-account"]
+      }
+    },
+    {
       "username": "service-account-sportivo-client-api",
       "enabled": true,
       "serviceAccountClientId": "sportivo-client-api",
