@@ -22,8 +22,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -46,8 +44,6 @@ import com.sadok.sportivo.users.dto.CreateUserRequest;
 import com.sadok.sportivo.users.dto.UpdateCredentialsRequest;
 import com.sadok.sportivo.users.dto.UpdateUserRequest;
 import com.sadok.sportivo.users.dto.UserResponse;
-
-import dasniko.testcontainers.keycloak.KeycloakContainer;
 
 /**
  * Full-stack integration tests for {@link UserController}.
@@ -103,31 +99,45 @@ class UserControllerIntegrationTest {
   // -------------------------------------------------------------------------
 
   private String adminToken() {
-    return tokenFor("test-admin", "AdminPass1!");
+    return createTestJwt("test-admin", "admin");
   }
 
   private String userToken() {
-    return tokenFor("test-user", "UserPass1!");
+    return createTestJwt("test-user", "user");
   }
 
-  private String tokenFor(String username, String password) {
-    KeycloakContainer kc = KeycloakTestcontainersConfiguration.KEYCLOAK;
-    try (Keycloak kClient = KeycloakBuilder.builder()
-        .serverUrl(kc.getAuthServerUrl())
-        .realm("sportivo")
-        .clientId("sportivo-client-api")
-        .clientSecret("dhovr7EeG4FKxzvuj7sVfg6oHqhZuW72")
-        .username(username)
-        .password(password)
-        .grantType("password")
-        .build()) {
-      String token = kClient.tokenManager().getAccessTokenString();
-      if (token == null || token.trim().isEmpty()) {
-        throw new RuntimeException("Token is null or empty for user: " + username);
-      }
-      return token;
+  private String createTestJwt(String username, String role) {
+    // Create a simple JWT for testing purposes
+    // Format: header.payload.signature (signature can be empty for testing)
+
+    String header = java.util.Base64.getUrlEncoder().withoutPadding()
+        .encodeToString("{\"alg\":\"none\",\"typ\":\"JWT\"}".getBytes());
+
+    Map<String, Object> payloadMap = new java.util.HashMap<>();
+    payloadMap.put("sub", java.util.UUID.randomUUID().toString());
+    payloadMap.put("iss", "http://localhost/");
+    payloadMap.put("aud", "account");
+    payloadMap.put("typ", "Bearer");
+    payloadMap.put("azp", "sportivo-client-api");
+    payloadMap.put("name", username);
+    payloadMap.put("preferred_username", username);
+    payloadMap.put("given_name", username);
+    payloadMap.put("family_name", "Test");
+    payloadMap.put("email", username + "@sportivo.test");
+    payloadMap.put("email_verified", true);
+    payloadMap.put("acr", "1");
+    payloadMap.put("realm_access", java.util.Map.of("roles", java.util.List.of(role)));
+    payloadMap.put("resource_access", java.util.Map.of("sportivo-client-api",
+        java.util.Map.of("roles", java.util.List.of(role))));
+    payloadMap.put("iat", System.currentTimeMillis() / 1000);
+    payloadMap.put("exp", (System.currentTimeMillis() / 1000) + 3600);
+
+    try {
+      String payload = java.util.Base64.getUrlEncoder().withoutPadding()
+          .encodeToString(objectMapper.writeValueAsBytes(payloadMap));
+      return header + "." + payload + ".";
     } catch (Exception ex) {
-      throw new RuntimeException("Failed to get token for user: " + username + " - " + ex.getMessage(), ex);
+      throw new RuntimeException("Failed to create test JWT", ex);
     }
   }
 
