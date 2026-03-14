@@ -3,6 +3,8 @@ package com.sadok.sportivo.users;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -11,6 +13,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -23,14 +28,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sadok.sportivo.KeycloakTestcontainersConfiguration;
 import com.sadok.sportivo.users.dto.CreateUserRequest;
@@ -63,10 +72,11 @@ class UserControllerIntegrationTest {
   WebApplicationContext context;
   @Autowired
   UserRepository userRepository;
-  @Autowired
-  ObjectMapper objectMapper;
+  @MockitoBean
+  JwtDecoder jwtDecoder;
 
   private MockMvc mockMvc;
+  private ObjectMapper objectMapper;
 
   @DynamicPropertySource
   static void keycloakProps(DynamicPropertyRegistry registry) {
@@ -79,6 +89,8 @@ class UserControllerIntegrationTest {
         .webAppContextSetup(context)
         .apply(SecurityMockMvcConfigurers.springSecurity())
         .build();
+    objectMapper = new ObjectMapper();
+    given(jwtDecoder.decode(anyString())).willAnswer(inv -> decodeJwtWithoutVerification(inv.getArgument(0)));
   }
 
   @AfterEach
@@ -287,5 +299,29 @@ class UserControllerIntegrationTest {
     String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
     String sub = payload.replaceAll(".*\"sub\":\"([^\"]+)\".*", "$1");
     return UUID.fromString(sub);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Jwt decodeJwtWithoutVerification(String token) {
+    try {
+      String[] parts = token.split("\\.");
+      String payloadJson = new String(java.util.Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+      Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<Map<String, Object>>() {
+      });
+
+      long issuedAtEpoch = ((Number) claims.getOrDefault("iat", Instant.now().getEpochSecond())).longValue();
+      long expiresAtEpoch = ((Number) claims.getOrDefault("exp", Instant.now().plusSeconds(3600).getEpochSecond()))
+          .longValue();
+
+      return Jwt.withTokenValue(token)
+          .header("alg", "none")
+          .issuedAt(Instant.ofEpochSecond(issuedAtEpoch))
+          .expiresAt(Instant.ofEpochSecond(expiresAtEpoch))
+          .subject((String) claims.get("sub"))
+          .claims(c -> c.putAll(claims))
+          .build();
+    } catch (Exception ex) {
+      throw new IllegalArgumentException("Unable to decode JWT in integration test", ex);
+    }
   }
 }

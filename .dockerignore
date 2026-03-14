@@ -1,0 +1,24 @@
+# Documentation & logs
+README.md
+HELP.md
+docs/
+*.log
+*.md
+
+#IDE & local development
+.idea/
+.vscode/
+*.iml
+
+# Build files
+build/
+.gradle/
+
+# Git files
+.git/
+.gitignore
+.github/
+
+# Docker files
+Dockerfile
+docker-compose*

@@ -7,7 +7,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.sadok.sportivo.common.MessageService;
 import com.sadok.sportivo.common.exception.ResourceAlreadyExistsException;
 import com.sadok.sportivo.common.exception.ResourceNotFoundException;
 import com.sadok.sportivo.keycloak.KeycloakAdminService;
@@ -43,6 +43,8 @@ class UserServiceTest {
   UserMapper userMapper;
   @Mock
   MailService mailService;
+  @Mock
+  MessageService messageService;
 
   @InjectMocks
   UserService userService;
@@ -95,6 +97,7 @@ class UserServiceTest {
     @DisplayName("throws ResourceAlreadyExistsException when username is taken")
     void duplicateUsername() {
       given(userRepository.existsByUsername("alice")).willReturn(true);
+      given(messageService.get("error.username.taken", "alice")).willReturn("alice");
 
       assertThatThrownBy(() -> userService.createUser(validRequest()))
           .isInstanceOf(ResourceAlreadyExistsException.class)
@@ -108,6 +111,7 @@ class UserServiceTest {
     void duplicateEmail() {
       given(userRepository.existsByUsername("alice")).willReturn(false);
       given(userRepository.existsByEmail("alice@example.com")).willReturn(true);
+      given(messageService.get("error.email.registered", "alice@example.com")).willReturn("alice@example.com");
 
       assertThatThrownBy(() -> userService.createUser(validRequest()))
           .isInstanceOf(ResourceAlreadyExistsException.class)
