@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="dev">
+        <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <http>
+                <url>http://localhost:3100/loki/api/v1/push</url>
+            </http>
+            <format>
+                <label>
+                    <pattern>app=${APP_NAME:-sportivo},profile=dev,level=%level</pattern>
+                </label>
+                <message>
+                    <pattern>{"level":"%level","logger":"%logger{36}","thread":"%thread","message":"%message","stack_trace":"%exception{10}"}</pattern>
+                </message>
+                <sortByTime>true</sortByTime>
+            </format>
+        </appender>
+
+        <!-- Your app: DEBUG so you see everything you write -->
+        <logger name="com.sportivo" level="DEBUG"/>
+
+        <!-- Framework noise: silence everything chatty -->
+        <logger name="org.springframework"          level="WARN"/>
+        <logger name="org.springframework.security" level="WARN"/>
+        <logger name="org.hibernate"                level="WARN"/>
+        <logger name="com.zaxxer.hikari"            level="WARN"/>
+        <logger name="sun.rmi"                      level="ERROR"/>
+        <logger name="javax.management"             level="ERROR"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!dev">
+        <root level="${LOGGING_LEVEL_ROOT:-INFO}">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>

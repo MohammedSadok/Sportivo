@@ -311,7 +311,11 @@ class UserControllerIntegrationTest {
    * Decodes the JWT subject (Keycloak user ID) without signature verification.
    */
   private static UUID subjectFromToken(String token) {
-    String[] parts = token.split("\\.");
+    String actualToken = token;
+    if (token.startsWith("Bearer ")) {
+      actualToken = token.substring("Bearer ".length()).trim();
+    }
+    String[] parts = actualToken.split("\\.");
     String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
     String sub = payload.replaceAll(".*\"sub\":\"([^\"]+)\".*", "$1");
     return UUID.fromString(sub);
@@ -323,9 +327,14 @@ class UserControllerIntegrationTest {
       if (token == null || token.trim().isEmpty()) {
         throw new RuntimeException("Token is null or empty");
       }
-      String[] parts = token.split("\\.");
+      // Remove "Bearer " prefix if present
+      String actualToken = token;
+      if (token.startsWith("Bearer ")) {
+        actualToken = token.substring("Bearer ".length()).trim();
+      }
+      String[] parts = actualToken.split("\\.");
       if (parts.length != 3) {
-        throw new RuntimeException("Token has " + parts.length + " parts, expected 3. Token: " + token);
+        throw new RuntimeException("Token has " + parts.length + " parts, expected 3. Token: " + actualToken);
       }
       String payloadJson = new String(java.util.Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
       Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<Map<String, Object>>() {
@@ -335,7 +344,7 @@ class UserControllerIntegrationTest {
       long expiresAtEpoch = ((Number) claims.getOrDefault("exp", Instant.now().plusSeconds(3600).getEpochSecond()))
           .longValue();
 
-      return Jwt.withTokenValue(token)
+      return Jwt.withTokenValue(actualToken)
           .header("alg", "none")
           .issuedAt(Instant.ofEpochSecond(issuedAtEpoch))
           .expiresAt(Instant.ofEpochSecond(expiresAtEpoch))
