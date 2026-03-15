@@ -30,12 +30,6 @@ app:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
     allowed-methods: ${APP_CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
     allowed-headers: ${APP_CORS_ALLOWED_HEADERS:Authorization,Content-Type}
-  mail:
-    host: ${SMTP_HOST:localhost}
-    port: ${SMTP_PORT:1025}
-    username: ${SMTP_USER:}
-    password: ${SMTP_PASSWORD:}
-    from: ${SMTP_FROM:noreply@sportivo.local}
   storage:
     endpoint: http://${RUSTFS_HOST:localhost}:${RUSTFS_API_PORT:9000}
     access-key: ${RUSTFS_ROOT_USER:admin}

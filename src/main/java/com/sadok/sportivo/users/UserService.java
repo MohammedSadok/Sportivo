@@ -11,7 +11,6 @@ import com.sadok.sportivo.common.exception.ResourceAlreadyExistsException;
 import com.sadok.sportivo.common.exception.ResourceNotFoundException;
 import com.sadok.sportivo.keycloak.KeycloakAdminService;
 import com.sadok.sportivo.keycloak.KeycloakAdminService.UserCreationResult;
-import com.sadok.sportivo.mail.MailService;
 import com.sadok.sportivo.users.dto.CreateUserRequest;
 import com.sadok.sportivo.users.dto.UpdateCredentialsRequest;
 import com.sadok.sportivo.users.dto.UpdateUserRequest;
@@ -28,7 +27,6 @@ public class UserService {
   private final UserRepository userRepository;
   private final KeycloakAdminService keycloakAdminService;
   private final UserMapper userMapper;
-  private final MailService mailService;
   private final MessageService messages;
 
   @Transactional
@@ -42,13 +40,14 @@ public class UserService {
           request.username(),
           request.email(),
           request.firstName(),
-          request.lastName(), 
+          request.lastName(),
           request.role());
 
       User saved = userRepository.save(user);
       log.info("User created locally [id={}, username={}]", saved.getId(), saved.getUsername());
 
-      mailService.sendWelcomeEmail(request.email(), request.username(), result.generatedPassword());
+      // mailService.sendWelcomeEmail(request.email(), request.username(),
+      // result.generatedPassword());
 
       return userMapper.toResponse(saved);
 

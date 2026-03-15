@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.sadok.sportivo.mail.RabbitMqProducer;
+import com.sadok.sportivo.common.RabbitMqProducer;
 
 @Component
 public class TestPubSub implements CommandLineRunner {
