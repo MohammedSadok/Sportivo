@@ -118,8 +118,25 @@ services:
       - "${RUSTFS_CONSOLE_PORT}:9001"
     volumes:
       - rustfs_data:/data
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    env_file: .env
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_VHOST: /
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
-  # monitoring
   loki:
     image: grafana/loki:3.4.2
     container_name: loki
@@ -171,5 +188,6 @@ volumes:
   postgres_data:
   keycloak_postgres_data:
   rustfs_data:
+  rabbitmq_data:
   loki_data:
   grafana_data:

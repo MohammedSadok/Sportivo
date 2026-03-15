@@ -24,13 +24,19 @@ spring:
         jwt:
           issuer-uri: http://localhost:${KEYCLOAK_PORT:8180}/realms/${KEYCLOAK_REALM:sportivo}
           jwk-set-uri: http://localhost:${KEYCLOAK_PORT:8180}/realms/${KEYCLOAK_REALM:sportivo}/protocol/openid-connect/certs
-
+  rabbitmq:
+    host: localhost
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_DEFAULT_USER:admin}
+    password: ${RABBITMQ_DEFAULT_PASS:admin}
 logging:
   level:
     root: INFO
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
     org.hibernate.orm.jdbc.bind: WARN # hides SQL parameter values too
+    org.springframework.amqp: DEBUG
+    com.rabbitmq: DEBUG
     com.sportivo: DEBUG # your own package — full detail here
   pattern:
     console: "%d{HH:mm:ss.SSS} %5p [%t] %logger{36} - %msg%n"
